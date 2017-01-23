@@ -1,6 +1,7 @@
 <?php
 
-class AccessTokenAuthentication {
+class AccessTokenAuthentication
+{
     /*
      * Get the access token.
      *
@@ -12,34 +13,35 @@ class AccessTokenAuthentication {
      *
      * @return string.
      */
-    function getTokens($grantType, $scopeUrl, $clientID, $clientSecret, $authUrl){
+    public function getTokens($grantType, $scopeUrl, $clientID, $clientSecret, $authUrl)
+    {
         try {
             //Initialize the Curl Session.
             $ch = curl_init();
             //Create the request Array.
-            $paramArr = array (
+            $paramArr = [
                  'grant_type'    => $grantType,
                  'scope'         => $scopeUrl,
                  'client_id'     => $clientID,
-                 'client_secret' => $clientSecret
-            );
+                 'client_secret' => $clientSecret,
+            ];
             //Create an Http Query.//
             $paramArr = http_build_query($paramArr);
             //Set the Curl URL.
             curl_setopt($ch, CURLOPT_URL, $authUrl);
             //Set HTTP POST Request.
-            curl_setopt($ch, CURLOPT_POST, TRUE);
+            curl_setopt($ch, CURLOPT_POST, true);
             //Set data to POST in HTTP "POST" Operation.
             curl_setopt($ch, CURLOPT_POSTFIELDS, $paramArr);
             //CURLOPT_RETURNTRANSFER- TRUE to return the transfer as a string of the return value of curl_exec().
-            curl_setopt ($ch, CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             //CURLOPT_SSL_VERIFYPEER- Set FALSE to stop cURL from verifying the peer's certificate.
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             //Execute the  cURL session.
             $strResponse = curl_exec($ch);
             //Get the Error Code returned by Curl.
             $curlErrno = curl_errno($ch);
-            if($curlErrno){
+            if ($curlErrno) {
                 $curlError = curl_error($ch);
                 throw new Exception($curlError);
             }
@@ -47,12 +49,13 @@ class AccessTokenAuthentication {
             curl_close($ch);
             //Decode the returned JSON string.
             $objResponse = json_decode($strResponse);
-            if ($objResponse->error){
+            if ($objResponse->error) {
                 throw new Exception($objResponse->error_description);
             }
+
             return $objResponse->access_token;
         } catch (Exception $e) {
-            echo "Exception-".$e->getMessage();
+            echo 'Exception-'.$e->getMessage();
         }
     }
 }
@@ -62,7 +65,8 @@ class AccessTokenAuthentication {
  *
  * Processing the translator request.
  */
-Class HTTPTranslator {
+class HTTPTranslator
+{
     /*
      * Create and execute the HTTP CURL request.
      *
@@ -72,19 +76,20 @@ Class HTTPTranslator {
      * @return string.
      *
      */
-    function curlRequest($url, $authHeader) {
+    public function curlRequest($url, $authHeader)
+    {
         //Initialize the Curl Session.
         $ch = curl_init();
         //Set the Curl url.
-        curl_setopt ($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_URL, $url);
         //Set the HTTP HEADER Fields.
-        curl_setopt ($ch, CURLOPT_HTTPHEADER, array($authHeader,"Content-Type: text/xml", 'Content-Length: 0'));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [$authHeader, 'Content-Type: text/xml', 'Content-Length: 0']);
         //CURLOPT_RETURNTRANSFER- TRUE to return the transfer as a string of the return value of curl_exec().
-        curl_setopt ($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         //CURLOPT_SSL_VERIFYPEER- Set FALSE to stop cURL from verifying the peer's certificate.
-        curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, False);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         //Set HTTP POST Request.
-        curl_setopt($ch, CURLOPT_POST, TRUE);
+        curl_setopt($ch, CURLOPT_POST, true);
         //Execute the  cURL session.
         $curlResponse = curl_exec($ch);
         //Get the Error Code returned by Curl.
@@ -95,45 +100,45 @@ Class HTTPTranslator {
         }
         //Close a cURL session.
         curl_close($ch);
+
         return $curlResponse;
     }
 }
 
 try {
     //Client ID of the application.
-    $clientID       = "clientId";
+    $clientID = 'clientId';
     //Client Secret key of the application.
-    $clientSecret = "ClientSecret";
+    $clientSecret = 'ClientSecret';
     //OAuth Url.
-    $authUrl      = "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13/";
+    $authUrl = 'https://datamarket.accesscontrol.windows.net/v2/OAuth2-13/';
     //Application Scope Url
-    $scopeUrl     = "http://api.microsofttranslator.com";
+    $scopeUrl = 'http://api.microsofttranslator.com';
     //Application grant type
-    $grantType    = "client_credentials";
+    $grantType = 'client_credentials';
 
     //Create the AccessTokenAuthentication object.
-    $authObj      = new AccessTokenAuthentication();
+    $authObj = new AccessTokenAuthentication();
     //Get the Access token.
-    $accessToken  = $authObj->getTokens($grantType, $scopeUrl, $clientID, $clientSecret, $authUrl);
+    $accessToken = $authObj->getTokens($grantType, $scopeUrl, $clientID, $clientSecret, $authUrl);
     //Create the authorization Header string.
-    $authHeader = "Authorization: Bearer ". $accessToken;
-
+    $authHeader = 'Authorization: Bearer '.$accessToken;
 
     //Set the Params.
-    $inputStr        = "una importante contribución a la rentabilidad de la empresa";
-    $fromLanguage   = "es";
-    $toLanguage        = "en";
-    $user            = 'TestUser';
-    $category       = "general";
-    $uri             = null;
-    $contentType    = "text/plain";
+    $inputStr = 'una importante contribución a la rentabilidad de la empresa';
+    $fromLanguage = 'es';
+    $toLanguage = 'en';
+    $user = 'TestUser';
+    $category = 'general';
+    $uri = null;
+    $contentType = 'text/plain';
     $maxTranslation = 5;
 
     //Create the string for passing the values through GET method.
     $params = "from=$fromLanguage".
                 "&to=$toLanguage".
                 "&maxTranslations=$maxTranslation".
-                "&text=".urlencode($inputStr).
+                '&text='.urlencode($inputStr).
                 "&user=$user".
                 "&uri=$uri".
                 "&contentType=$contentType";
@@ -152,13 +157,13 @@ try {
     $translationMatchArr = $translationObj->TranslationMatch;
     echo "Get Translation For <b>$inputStr</b>";
     echo "<table border ='2px'>";
-    echo "<tr><td><b>Count</b></td><td><b>MatchDegree</b></td>
-        <td><b>Rating</b></td><td><b>TranslatedText</b></td></tr>";
-    foreach($translationMatchArr as $translationMatch) {
+    echo '<tr><td><b>Count</b></td><td><b>MatchDegree</b></td>
+        <td><b>Rating</b></td><td><b>TranslatedText</b></td></tr>';
+    foreach ($translationMatchArr as $translationMatch) {
         echo "<tr><td>$translationMatch->Count</td><td>$translationMatch->MatchDegree</td><td>$translationMatch->Rating</td>
             <td>$translationMatch->TranslatedText</td></tr>";
     }
-    echo "</table></br>";
+    echo '</table></br>';
 } catch (Exception $e) {
-    echo "Exception: " . $e->getMessage() . PHP_EOL;
+    echo 'Exception: '.$e->getMessage().PHP_EOL;
 }
